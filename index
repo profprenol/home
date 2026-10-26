@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matematica Interattiva</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f7f9fc;
+            color: #333;
+        }
+
+        header {
+            background-color: #1e3a8a;
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 3em;
+        }
+
+        .sottotitolo {
+            margin-top: 15px;
+            font-size: 1.2em;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .cards {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 250px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #1e3a8a;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Matematica Interattiva</h1>
+    <p class="sottotitolo">
+        Esplorare, comprendere e collegare le idee matematiche.
+    </p>
+</header>
+
+<div class="container">
+
+    <div class="cards">
+
+        <div class="card">
+            <h2>🔍 Esplorare</h2>
+            <p>
+                La matematica nasce dall'osservazione, dalla curiosità e
+                dalla ricerca di regolarità. Attraverso applet dinamiche,
+                costruzioni geometriche ed esperimenti virtuali, ogni
+                concetto può essere investigato in prima persona.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>💡 Comprendere</h2>
+            <p>
+                Comprendere significa andare oltre le formule.
+                Significa cogliere il significato delle definizioni,
+                costruire argomentazioni e sviluppare intuizioni che
+                rendono le idee matematiche vive e durature.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>🔗 Collegare</h2>
+            <p>
+                La matematica è una rete di relazioni.
+                Geometria, algebra, probabilità, storia,
+                arte e scienze dialogano continuamente.
+                Imparare significa scoprire questi collegamenti.
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+<footer>
+    © Matematica Interattiva
+</footer>
+
+</body>
+</html>
