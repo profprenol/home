@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La macchina delle funzioni</title>
+<style>
+:root{--bg:#eef3f7;--ink:#1b2a41;--mut:#5b6b80;--line:#c9d6e2;--card:#fff;--acc:#0f8b8d;--hi:#f2c14e;--bad:#b3392b}
+@media (prefers-color-scheme:dark){:root{--bg:#121b27;--ink:#e8eef5;--mut:#9fb0c3;--line:#2a3a4d;--card:#1a2636;--acc:#4fc3c5;--bad:#ff9a8a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 48px}
+h1{font:700 2rem/1.15 Georgia,"Times New Roman",serif;margin:0 0 8px}
+.lead{max-width:62ch;color:var(--mut);margin:0 0 20px}
+button,input{font:inherit;color:inherit}
+button{background:var(--card);border:1.5px solid var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer}
+button:hover{background:var(--hi);color:#1b2a41}
+button.on{background:var(--ink);color:var(--bg)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+input{background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px}
+.levels{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.machine{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:20px}
+.machine input{width:6.5rem;text-align:center;font-size:1.3rem}
+.arrow{font-size:1.6rem;color:var(--mut)}
+.box{width:96px;height:96px;display:grid;place-items:center;background:var(--ink);color:var(--hi);border-radius:12px;font:italic 2.4rem Georgia,serif}
+#out{min-width:6.5rem;text-align:center;font-size:1.6rem;font-weight:700;border-bottom:3px solid var(--hi);padding:6px}
+#out.pop{animation:pop .4s}
+@keyframes pop{from{transform:translateY(-10px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){#out.pop{animation:none}}
+.go{display:block;margin:14px auto 0}
+.cols{display:grid;grid-template-columns:minmax(150px,1fr) 2fr;gap:16px;margin:20px 0}
+@media (max-width:600px){.cols{grid-template-columns:1fr}}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px;overflow-x:auto}
+h2{font:700 1.1rem Georgia,serif;margin:0 0 8px}
+table{border-collapse:collapse;width:100%;text-align:center}
+th,td{padding:5px 8px;border-bottom:1px solid var(--line)}
+.mut{color:var(--mut)}
+svg{width:100%;max-width:420px;height:auto;display:block;margin:0 auto}
+.guess{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.guess input{flex:1;min-width:10rem}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+#msg{min-height:3em;margin:12px 0 0}
+#msg.ok{color:var(--acc);font-weight:700}
+</style>
+</head>
+<body>
+<main>
+<h1>La macchina delle funzioni</h1>
+<p class="lead">Dentro la macchina c’è una regola nascosta: trasforma ogni numero che inserisci. Prova con alcuni valori, osserva tabella e grafico, poi scrivi la regola che pensi di aver scoperto.</p>
+
+<div class="levels" role="group" aria-label="Tipo di macchina">
+<button data-l="1" class="on">Lineari</button>
+<button data-l="2">Quadratiche</button>
+<button data-l="3">Con valore assoluto</button>
+</div>
+
+<section class="machine" aria-label="La macchina">
+<label>
+<span class="mut">Ingresso</span><br>
+<input id="inp" type="number" step="any" value="1">
+</label>
+<span class="arrow" aria-hidden="true">→</span>
+<div class="box" aria-hidden="true">f</div>
+<span class="arrow" aria-hidden="true">→</span>
+<div><span class="mut">Uscita</span><br><div id="out" aria-live="polite">?</div></div>
+</section>
+<button class="go" id="go">Inserisci il numero</button>
+
+<div class="cols">
+<section class="card"><h2>Tabella</h2>
+<table><thead><tr><th>x</th><th>f(x)</th></tr></thead><tbody id="tb"></tbody></table></section>
+<section class="card"><h2>Grafico</h2>
+<svg id="g" viewBox="0 0 320 320" role="img" aria-label="Grafico dei punti trovati"></svg></section>
+</div>
+
+<section class="card"><h2>La tua ipotesi</h2>
+<div class="guess">
+<label for="hyp">f(x) =</label>
+<input id="hyp" type="text" autocomplete="off" placeholder="per esempio 2x+1, x^2−3, abs(x)+1">
+<button id="chk">Verifica</button>
+</div>
+<p id="msg" aria-live="polite"></p>
+<div class="row">
+<button id="rev">Svela la regola</button>
+<button id="new">Nuova macchina</button>
+</div>
+</section>
+</main>
+
+<script>
+const L={
+1:[["x + 3",x=>x+3],["2x",x=>2*x],["x − 4",x=>x-4],["3x − 1",x=>3*x-1],["−x + 5",x=>5-x]],
+2:[["x²",x=>x*x],["x² + 1",x=>x*x+1],["x² − 4",x=>x*x-4],["2x² − 3",x=>2*x*x-3]],
+3:[["|x|",x=>Math.abs(x)],["|x| + 2",x=>Math.abs(x)+2],["|x − 2|",x=>Math.abs(x-2)],["2|x| − 1",x=>2*Math.abs(x)-1]]
+};
+let lv=1,rule,pts=[],hyp=null,last=-1;
+const $=id=>document.getElementById(id);
+const r6=v=>Math.round(v*1e6)/1e6;
+const fmt=v=>String(v).replace("-","−").replace(".",",");
+function say(t,ok){const m=$("msg");m.textContent=t;m.className=ok?"ok":""}
+
+function nuova(){
+ const a=L[lv];let i;
+ do{i=Math.floor(Math.random()*a.length)}while(i===last&&a.length>1);
+ last=i;rule=a[i];pts=[];hyp=null;
+ $("out").textContent="?";$("hyp").value="";say("");draw();
+}
+
+function inserisci(){
+ const x=parseFloat($("inp").value);
+ if(!isFinite(x)){say("Scrivi un numero da inserire.");return}
+ const y=r6(rule[1](x));
+ if(!pts.some(p=>p[0]===x))pts.push([x,y]);
+ const o=$("out");o.textContent=fmt(y);
+ o.classList.remove("pop");void o.offsetWidth;o.classList.add("pop");
+ say("");draw();
+}
+
+function compila(s){
+ s=s.toLowerCase().replace(/−/g,"-").replace(/[×·]/g,"*").replace(/\s+/g,"").replace(/,/g,".");
+ s=s.replace(/^(f\(x\)|y)=/,"");
+ if(!s||!/^[0-9x+\-*/^().a-z²³]*$/.test(s))return null;
+ if(/[a-z]/.test(s.replace(/abs|x/g,"")))return null;
+ s=s.replace(/²/g,"^2").replace(/³/g,"^3");
+ s=s.replace(/(\d|x|\))(?=x|\(|abs)/g,"$1*").replace(/x(?=\d)/g,"x*").replace(/\)(?=\d)/g,")*");
+ s=s.replace(/(^|\()-/g,"$10-").replace(/\^/g,"**").replace(/abs/g,"Math.abs");
+ try{const f=new Function("x","return "+s);return isFinite(f(1))?f:null}catch(e){return null}
+}
+
+function verifica(){
+ const f=compila($("hyp").value);
+ if(!f){say("Non riesco a leggere la formula. Esempi: 2x+1, x^2−3, abs(x)+1.");return}
+ hyp=f;
+ const xs=[];for(let i=-10;i<=10;i++)xs.push(i);xs.push(-2.5,0.5,1.5,7.5);
+ for(const x of xs){
+  const r=r6(rule[1](x)),h=r6(f(x));
+  if(!(Math.abs(r-h)<1e-6)){
+   if(!pts.some(p=>p[0]===x))pts.push([x,r]);
+   draw();
+   say(`Non ancora: per x = ${fmt(x)} la tua regola dà ${fmt(h)}, la macchina ${fmt(r)}. Guarda dove la curva tratteggiata si stacca dai punti.`);
+   return;
+  }
+ }
+ draw();
+ say(`Ci sei: la tua regola coincide con quella della macchina, f(x) = ${rule[0]}.`,true);
+}
+
+function draw(){
+ $("tb").innerHTML=pts.map(p=>`<tr><td>${fmt(p[0])}</td><td>${fmt(p[1])}</td></tr>`).join("")||`<tr><td colspan="2" class="mut">Nessun valore ancora</td></tr>`;
+ let m=10;pts.forEach(p=>{m=Math.max(m,Math.abs(p[0]),Math.abs(p[1]))});
+ m=Math.ceil(m/5)*5;
+ const s=140/m,P=v=>160+v*s,Q=v=>160-v*s,g=m<=10?1:5,lab=m<=10?5:10;
+ let h="";
+ for(let k=-m;k<=m;k+=g){
+  const c=k===0?"var(--ink)":"var(--line)",w=k===0?1.6:1;
+  h+=`<line x1="${P(k)}" y1="${Q(-m)}" x2="${P(k)}" y2="${Q(m)}" stroke="${c}" stroke-width="${w}"/>`;
+  h+=`<line x1="${P(-m)}" y1="${Q(k)}" x2="${P(m)}" y2="${Q(k)}" stroke="${c}" stroke-width="${w}"/>`;
+  if(k!==0&&k%lab===0){
+   h+=`<text x="${P(k)}" y="${Q(0)+13}" font-size="10" text-anchor="middle" fill="var(--mut)">${fmt(k)}</text>`;
+   h+=`<text x="${P(0)-4}" y="${Q(k)+3}" font-size="10" text-anchor="end" fill="var(--mut)">${fmt(k)}</text>`;
+  }
+ }
+ if(hyp){
+  let d="",pen=false;
+  for(let i=0;i<=240;i++){
+   const x=-m+2*m*i/240,y=hyp(x);
+   if(isFinite(y)&&Math.abs(y)<=m*1.5){d+=(pen?"L":"M")+P(x).toFixed(1)+","+Q(y).toFixed(1);pen=true}else pen=false;
+  }
+  h+=`<path d="${d}" fill="none" stroke="var(--bad)" stroke-width="2" stroke-dasharray="6 4"/>`;
+ }
+ pts.forEach(p=>{h+=`<circle cx="${P(p[0])}" cy="${Q(p[1])}" r="4.5" fill="var(--acc)" stroke="var(--ink)" stroke-width="1"/>`});
+ $("g").innerHTML=h;
+}
+
+document.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{
+ lv=+b.dataset.l;last=-1;
+ document.querySelectorAll("[data-l]").forEach(x=>x.classList.toggle("on",x===b));
+ nuova();
+});
+$("go").onclick=inserisci;
+$("inp").onkeydown=e=>{if(e.key==="Enter")inserisci()};
+$("chk").onclick=verifica;
+$("hyp").onkeydown=e=>{if(e.key==="Enter")verifica()};
+$("rev").onclick=()=>say("La regola della macchina è f(x) = "+rule[0]+".");
+$("new").onclick=nuova;
+nuova();
+</script>
+</body>
+</html>
