@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mappa interattiva delle funzioni</title>
+<style>
+:root{--bg:#f7f6f2;--ink:#1d2433;--mute:#5d6678;--line:#8a93a6;--card:#fff;--bd:#d6d9e0;
+--c-def:#c8344a;--c-dom:#127a78;--c-pro:#b26b00;--c-map:#4a3fb5;--c-cls:#2f6bb0;
+--t-def:#fbe3e6;--t-dom:#d9f0ee;--t-pro:#fbecd2;--t-map:#e4e1fa;--t-cls:#dce9f7}
+@media(prefers-color-scheme:dark){:root{--bg:#141821;--ink:#e8ebf2;--mute:#9aa3b6;--line:#6b7488;--card:#1d2330;--bd:#343c4f;
+--c-def:#ff8095;--c-dom:#5fd1cc;--c-pro:#f3b04d;--c-map:#a39bff;--c-cls:#7db4f0;
+--t-def:#3b1f26;--t-dom:#173534;--t-pro:#3a2b12;--t-map:#272347;--t-cls:#1b2a40}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:20px 16px 4px;max-width:1000px;margin:0 auto}
+h1{font:600 1.5rem/1.2 Georgia,"Iowan Old Style",serif;margin:0 0 4px}
+header p{margin:0;color:var(--mute);font-size:.92rem}
+.wrap{max-width:1000px;margin:0 auto;padding:8px 8px 0}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+svg{display:block;min-width:760px;width:100%;height:auto}
+.edge{stroke:var(--line);stroke-width:1.4;fill:none}
+.elab{fill:var(--mute);font-size:11px;font-style:italic;paint-order:stroke;stroke:var(--bg);stroke-width:4px}
+.node{cursor:pointer;outline:none}
+.node rect{stroke-width:1.6;transition:stroke-width .15s}
+.node text{font-size:12.5px;fill:var(--ink);text-anchor:middle;pointer-events:none}
+.node:hover rect,.node:focus-visible rect{stroke-width:3}
+.node.sel rect{stroke-width:4}
+.dim{opacity:.28}
+.g-def rect{fill:var(--t-def);stroke:var(--c-def)}.g-dom rect{fill:var(--t-dom);stroke:var(--c-dom)}
+.g-pro rect{fill:var(--t-pro);stroke:var(--c-pro)}.g-map rect{fill:var(--t-map);stroke:var(--c-map)}
+.g-cls rect{fill:var(--t-cls);stroke:var(--c-cls)}
+.root text{font-weight:700;font-size:15px}
+#panel{position:sticky;bottom:0;max-width:1000px;margin:8px auto 0;background:var(--card);border:1px solid var(--bd);border-bottom:0;
+border-radius:14px 14px 0 0;padding:14px 18px 18px;box-shadow:0 -6px 24px rgba(0,0,0,.08);max-height:48vh;overflow:auto}
+#panel h2{font:600 1.2rem/1.25 Georgia,"Iowan Old Style",serif;margin:0 0 6px}
+#panel .body{font-family:Georgia,"Iowan Old Style",serif;max-width:70ch}
+#panel p{margin:.4em 0}
+.math{font-family:"Cambria Math",Cambria,Georgia,serif;font-style:italic}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips button{font:inherit;font-size:.82rem;padding:3px 10px;border:1px solid var(--bd);border-radius:99px;background:transparent;color:var(--ink);cursor:pointer}
+.chips button:hover,.chips button:focus-visible{border-color:var(--ink)}
+.hint{color:var(--mute);font-size:.85rem;margin:6px 0 0}
+</style>
+</head>
+<body>
+<header>
+<h1>Le funzioni: mappa interattiva</h1>
+<p>Tocca un concetto per leggerne il significato; i collegamenti in fondo al riquadro portano ai concetti vicini.</p>
+</header>
+<div class="wrap"><div class="scroll">
+<svg id="map" viewBox="0 0 960 600" role="group" aria-label="Mappa concettuale delle funzioni">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--line)"/></marker></defs>
+<g id="edges"></g><g id="nodes"></g>
+</svg></div></div>
+<section id="panel" aria-live="polite"></section>
+
+<script>
+var N={
+fun:{l:["FUNZIONI"],x:500,y:300,w:150,h:46,g:"def",root:1,t:"Funzione",d:"<p>Una funzione è una <b>relazione</b> tra due insiemi, <span class='math'>f : X → Y</span>, che ad ogni elemento di X associa <b>un unico</b> elemento di Y.</p><p>Dal punto di vista rigoroso è una terna (dominio, codominio, regola): se manca uno dei tre elementi la funzione non è definita.</p>"},
+rel:{l:["Relazioni tra due insiemi","f : X → Y"],x:500,y:400,w:190,h:46,g:"def",t:"Relazione tra due insiemi",d:"<p>Una relazione da X a Y è un qualsiasi sottoinsieme del prodotto cartesiano <span class='math'>X × Y</span>: ogni elemento di X può essere in relazione con zero, uno o più elementi di Y.</p><p>La funzione è una relazione con una restrizione precisa, quella espressa nel nodo successivo.</p>"},
+uni:{l:["ad ogni elemento di X","associano un unico elemento di Y"],x:500,y:500,w:220,h:46,g:"def",t:"Esistenza e unicità",d:"<p>La condizione «uno e un solo» si divide in due parti:</p><p><b>Esistenza</b>: ogni elemento del dominio ha almeno un’immagine.<br><b>Unicità</b>: ogni elemento del dominio ha al più un’immagine.</p><p>Sul grafico l’unicità si controlla con la <b>prova della retta verticale</b>: una curva rappresenta una funzione se ogni retta verticale la interseca al più in un punto.</p>"},
+dom:{l:["Dominio","insieme X di partenza"],x:300,y:400,w:150,h:46,g:"dom",t:"Dominio",d:"<p>Il dominio è l’insieme <span class='math'>X</span> degli elementi di partenza.</p><p>Il dominio fa parte della definizione: la stessa espressione, per esempio <span class='math'>√(x−1)</span>, con domini diversi dà funzioni diverse (uguali solo se hanno stesso dominio, stesso codominio e stessa regola).</p><p>Il <b>dominio naturale</b> (il più grande sottoinsieme di ℝ su cui l’espressione ha valore reale) è una convenzione comoda, non una necessità logica.</p>"},
+img:{l:["Insieme immagine","valori assunti da f, ⊆ Y"],x:300,y:500,w:170,h:46,g:"dom",t:"Insieme immagine",d:"<p>L’insieme immagine <span class='math'>Im(f) = {f(x) | x ∈ X}</span> contiene i valori effettivamente assunti da f ed è un <b>sottoinsieme</b> di Y.</p><p>Non va confuso con il codominio, che è l’insieme «bersaglio» dichiarato: coincidono solo se la funzione è suriettiva.</p>"},
+cls:{l:["Classificazione"],x:110,y:300,w:140,h:42,g:"cls",t:"Classificazione",d:"<p>Le funzioni si classificano in base alla forma dell’espressione analitica.</p><p><b>Algebriche</b>: razionali (intere, es. <span class='math'>y = 5x − 7</span>; fratte, es. <span class='math'>y = (2x−1)/(3x+2)</span>) e irrazionali (es. <span class='math'>y = √(x+1)</span>).<br><b>Trascendenti</b>: goniometriche (<span class='math'>y = cos(3x+1)</span>), logaritmiche (<span class='math'>y = log(x+3)²</span>), esponenziali (<span class='math'>y = 4^(2x+3)</span>).</p>"},
+det:{l:["Determinazione","del dominio"],x:110,y:400,w:140,h:46,g:"cls",t:"Determinazione del dominio",d:"<p>Il dominio naturale dipende dal tipo di funzione:</p><p><b>Razionale intera</b>: D = ℝ.<br><b>Razionale fratta</b>: D = ℝ meno i valori che annullano il denominatore.<br><b>Irrazionale con indice pari</b>: radicando ≥ 0 (con più radicali di indice pari si imposta un sistema).<br><b>Irrazionale con indice dispari</b>: dipende dal radicando.<br><b>Fratta</b>: attenzione al denominatore.</p>"},
+pro:{l:["PROPRIETÀ"],x:500,y:200,w:130,h:42,g:"pro",t:"Proprietà",d:"<p>Una funzione può avere (come non avere) alcune proprietà, per esempio quelle legate alla monotonia e alla simmetria.</p>"},
+mon:{l:["Monotonia"],x:282,y:120,w:120,h:40,g:"pro",t:"Monotonia",d:"<p>Descrive come variano i valori di f al crescere di x: la funzione può essere crescente, decrescente, oppure nessuna delle due.</p>"},
+sim:{l:["Simmetria"],x:678,y:120,w:120,h:40,g:"pro",t:"Simmetria",d:"<p>Riguarda il comportamento di f rispetto al segno di x: pari, dispari, oppure nessuna delle due.</p>"},
+cre:{l:["Funzioni crescenti","x₁ ≤ x₂ ⇒ f(x₁) ≤ f(x₂)"],x:189,y:40,w:170,h:46,g:"pro",t:"Funzioni crescenti",d:"<p>Se <span class='math'>x₁ ≤ x₂</span> allora <span class='math'>f(x₁) ≤ f(x₂)</span>: aumentando x, il valore di f non diminuisce.</p>"},
+dec:{l:["Funzioni decrescenti","x₁ ≤ x₂ ⇒ f(x₁) ≥ f(x₂)"],x:375,y:40,w:170,h:46,g:"pro",t:"Funzioni decrescenti",d:"<p>Se <span class='math'>x₁ ≤ x₂</span> allora <span class='math'>f(x₁) ≥ f(x₂)</span>: aumentando x, il valore di f non aumenta.</p>"},
+par:{l:["Funzioni pari","f(−x) = f(x)","simmetria rispetto all’asse y"],x:585,y:40,w:170,h:52,g:"pro",t:"Funzioni pari",d:"<p><span class='math'>f(−x) = f(x)</span>: il grafico è simmetrico rispetto all’<b>asse y</b>.</p>"},
+dis:{l:["Funzioni dispari","f(−x) = −f(x)","simmetria rispetto all’origine"],x:771,y:40,w:170,h:52,g:"pro",t:"Funzioni dispari",d:"<p><span class='math'>f(−x) = −f(x)</span>: il grafico è simmetrico rispetto all’<b>origine</b>.</p>"},
+inj:{l:["Funzioni iniettive","elementi diversi di X","hanno immagini diverse"],x:690,y:400,w:170,h:52,g:"map",t:"Funzioni iniettive",d:"<p>Elementi diversi di X hanno immagini diverse.</p><p><b>Per dimostrare che è iniettiva</b>: algebricamente, <span class='math'>f(x₁) = f(x₂) ⇒ x₁ = x₂</span>; graficamente, ogni retta parallela all’asse x interseca il grafico al più in un punto.</p><p><b>Per dimostrare che non lo è</b> basta trovare due valori distinti <span class='math'>x₁, x₂</span> del dominio con <span class='math'>f(x₁) = f(x₂)</span>, o una retta parallela all’asse x che incontra il grafico in più di un punto.</p>"},
+sur:{l:["Funzioni suriettive","ogni elemento di Y è immagine","di almeno un elemento di X"],x:860,y:300,w:190,h:52,g:"map",t:"Funzioni suriettive",d:"<p>Ogni elemento di Y è immagine di <b>almeno</b> un elemento di X; in tal caso il codominio coincide con l’insieme immagine <span class='math'>Im(f)</span>.</p><p>Dipende da come si sceglie il codominio: ogni funzione può essere resa suriettiva restringendo il codominio all’insieme immagine.</p>"},
+bii:{l:["Funzioni biiettive","iniettive + suriettive"],x:770,y:500,w:180,h:46,g:"map",t:"Funzioni biiettive",d:"<p>Una funzione è biiettiva (biunivoca) se è <b>sia iniettiva sia suriettiva</b>: ogni elemento di Y è immagine di uno e un solo elemento di X.</p>"},
+inv:{l:["Funzione inversa","f⁻¹ : Y → X"],x:770,y:575,w:170,h:42,g:"map",t:"Funzione inversa",d:"<p>Le funzioni biiettive hanno una funzione inversa, indicata con <span class='math'>f⁻¹ : Y → X</span>.</p><p>I grafici di f e di <span class='math'>f⁻¹</span> sono <b>simmetrici rispetto alla retta y = x</b> (la bisettrice del primo e terzo quadrante).</p>"}
+};
+/* Archi: [da, a, etichetta, dx, dy, ancoraggio]  (dx, dy, ancoraggio facoltativi) */
+var E=[["fun","rel","sono",-8,0,"end"],["rel","uni","che"],["rel","dom"],["rel","img"],["fun","cls"],["cls","det"],["det","dom"],["fun","pro","possono avere (come non avere)"],["pro","mon"],["pro","sim"],["mon","cre"],["mon","dec"],["sim","par"],["sim","dis"],["fun","inj","possono essere (come non essere)",30,-6],["fun","sur"],["inj","bii","+"],["sur","bii"],["bii","inv","hanno"]];
+var NS="http://www.w3.org/2000/svg",eg=document.getElementById("edges"),ng=document.getElementById("nodes"),panel=document.getElementById("panel");
+function el(t,a,p){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+var ref={},nb={};
+E.forEach(function(e,i){var a=N[e[0]],b=N[e[1]];
+ var l=el("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,"class":"edge","marker-end":"url(#ar)"},eg);
+ ref[i]=l;(nb[e[0]]=nb[e[0]]||[]).push(e[1]);(nb[e[1]]=nb[e[1]]||[]).push(e[0]);
+ if(e[2]){var t=el("text",{x:(a.x+b.x)/2+(e[3]||0),y:(a.y+b.y)/2+4+(e[4]||0),"class":"elab","text-anchor":e[5]||"middle"},eg);t.textContent=e[2]}});
+for(var id in N){(function(id){var n=N[id];
+ var g=el("g",{"class":"node g-"+n.g+(n.root?" root":""),tabindex:0,role:"button","aria-label":n.t,"data-id":id},ng);
+ el("rect",{x:n.x-n.w/2,y:n.y-n.h/2,width:n.w,height:n.h,rx:n.root?23:9},g);
+ var s=n.l.length,lh=14;n.l.forEach(function(s2,i){var t=el("text",{x:n.x,y:n.y+(i-(s-1)/2)*lh+4},g);t.textContent=s2;if(i>0)t.setAttribute("style","font-size:11px;fill:var(--mute)")});
+ g.addEventListener("click",function(){sel(id)});
+ g.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();sel(id)}});
+ n.el=g})(id)}
+function sel(id){var n=N[id],near=(nb[id]||[]).concat([id]);
+ for(var k in N)N[k].el.classList.toggle("dim",near.indexOf(k)<0);
+ for(var k in N)N[k].el.classList.toggle("sel",k===id);
+ E.forEach(function(e,i){ref[i].classList.toggle("dim",e[0]!==id&&e[1]!==id)});
+ var h="<h2>"+n.t+"</h2><div class='body'>"+n.d+"</div><div class='chips'>";
+ (nb[id]||[]).forEach(function(o){h+="<button data-go='"+o+"'>"+N[o].t+"</button>"});
+ h+="<button data-go=''>Mostra tutta la mappa</button></div>";
+ panel.innerHTML=h;
+ panel.querySelectorAll("button").forEach(function(b){b.onclick=function(){b.dataset.go?sel(b.dataset.go):reset()}})}
+function reset(){for(var k in N){N[k].el.classList.remove("dim","sel")}E.forEach(function(e,i){ref[i].classList.remove("dim")});
+ panel.innerHTML="<h2>Come usare la mappa</h2><p class='hint'>Tocca un concetto: si evidenziano i collegamenti e compare la spiegazione. Da lì puoi spostarti ai concetti collegati.</p>"}
+reset();
+</script>
+</body>
+</html>
