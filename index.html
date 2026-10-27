@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Attività interattive di matematica per esplorare, comprendere e collegare le idee: la macchina delle funzioni e la mappa interattiva delle funzioni.">
     <title>Matematica Interattiva</title>
+
     <style>
+        /* ---------- Base ---------- */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -12,6 +16,7 @@
             color: #333;
         }
 
+        /* ---------- Intestazione ---------- */
         header {
             background-color: #1e3a8a;
             color: white;
@@ -29,21 +34,11 @@
             font-size: 1.2em;
         }
 
+        /* ---------- Contenitore e card ---------- */
         .container {
             max-width: 1000px;
             margin: 50px auto;
             padding: 0 20px;
-            .vai {
-                display: inline-block;
-                margin-top: 40px;
-                padding: 15px 30px;
-                background-color: #1e3a8a;
-                color: white;
-                text-decoration: none;
-                border-radius: 10px;
-                font-size: 1.1em;
-            }
-            .vai:hover { background-color: #2c4fb8; }
         }
 
         .cards {
@@ -55,16 +50,55 @@
         .card {
             flex: 1;
             min-width: 250px;
+            display: flex;
+            flex-direction: column;
             background: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
         }
 
         .card h2 {
             color: #1e3a8a;
         }
 
+        .card p {
+            margin: 0 0 30px;
+        }
+
+        /* ---------- Pulsanti ---------- */
+        /* margin-top: auto spinge il pulsante in fondo alla card,
+           così i pulsanti restano allineati anche con testi di lunghezza diversa */
+        .vai {
+            display: inline-block;
+            margin-top: auto;
+            align-self: flex-start;
+            padding: 15px 30px;
+            background-color: #1e3a8a;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+        }
+
+        .vai:hover {
+            background-color: #2c4fb8;
+        }
+
+        /* Visibile a chi naviga con la tastiera */
+        .vai:focus {
+            outline: 3px solid #93c5fd;
+            outline-offset: 2px;
+        }
+
+        /* Pulsante non ancora attivo */
+        .vai.in-arrivo {
+            background-color: #cbd5e1;
+            color: #475569;
+            cursor: default;
+        }
+
+        /* ---------- Piè di pagina ---------- */
         footer {
             text-align: center;
             margin-top: 60px;
@@ -76,57 +110,60 @@
 
 <body>
 
-<header>
-    <h1>Matematica Interattiva</h1>
-    <p class="sottotitolo">
-        Esplorare, comprendere e collegare le idee matematiche.
-    </p>
-</header>
+    <header>
+        <h1>Matematica Interattiva</h1>
+        <p class="sottotitolo">
+            Esplorare, comprendere e collegare le idee matematiche.
+        </p>
+    </header>
 
-<div class="container">
+    <main class="container">
+        <div class="cards">
 
-    <div class="cards">
+            <!-- Esplorare: la macchina delle funzioni -->
+            <div class="card">
+                <h2>🔍 Esplorare</h2>
+                <p>
+                    La matematica nasce dall’osservazione, dalla curiosità e
+                    dalla ricerca di regolarità. Attraverso applet dinamiche,
+                    costruzioni geometriche ed esperimenti virtuali, ogni
+                    concetto può essere investigato in prima persona.
+                </p>
+                <a class="vai" href="esplorare/">Esplora →</a>
+            </div>
 
-        <div class="card">
-            <h2>🔍 Esplorare</h2>
-            <p>
-                La matematica nasce dall'osservazione, dalla curiosità e
-                dalla ricerca di regolarità. Attraverso applet dinamiche,
-                costruzioni geometriche ed esperimenti virtuali, ogni
-                concetto può essere investigato in prima persona.
-            </p>
-            <a class="vai" href="esplorare/">Esplora →</a>
+            <!-- Comprendere: la mappa interattiva delle funzioni -->
+            <div class="card">
+                <h2>💡 Comprendere</h2>
+                <p>
+                    Comprendere significa andare oltre le formule.
+                    Significa cogliere il significato delle definizioni,
+                    costruire argomentazioni e sviluppare intuizioni che
+                    rendono le idee matematiche vive e durature.
+                </p>
+                <!-- Sostituisci "mappa/" con l’indirizzo reale della mappa -->
+                <a class="vai" href=""comprendere/">Comprendi →</a>
+            </div>
+
+            <!-- Collegare: sezione ancora da realizzare -->
+            <div class="card">
+                <h2>🔗 Collegare</h2>
+                <p>
+                    La matematica è una rete di relazioni.
+                    Geometria, algebra, probabilità, storia,
+                    arte e scienze dialogano continuamente.
+                    Imparare significa scoprire questi collegamenti.
+                </p>
+                <span class="vai in-arrivo" aria-disabled="true">In arrivo</span>
+            </div>
+
         </div>
+    </main>
 
-        <div class="card">
-            <h2>💡 Comprendere</h2>
-            <p>
-                Comprendere significa andare oltre le formule.
-                Significa cogliere il significato delle definizioni,
-                costruire argomentazioni e sviluppare intuizioni che
-                rendono le idee matematiche vive e durature.
-                <a class="vai" href="comprendere/">Comprendi →</a>
-            </p>
-        </div>
-
-        <div class="card">
-            <h2>🔗 Collegare</h2>
-            <p>
-                La matematica è una rete di relazioni.
-                Geometria, algebra, probabilità, storia,
-                arte e scienze dialogano continuamente.
-                Imparare significa scoprire questi collegamenti.
-            </p>
-        </div>
-
-    </div>
-
-</div>
-
-   
-<footer>
-    © Matematica Interattiva
-</footer>
+    <footer>
+        © Matematica Interattiva
+    </footer>
 
 </body>
+
 </html>
