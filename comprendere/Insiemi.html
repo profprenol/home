@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appunti di Matematica: Gli Insiemi (Schema a Mano)</title>
+    
+    <!-- Google Fonts per scrittura a mano -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+    
+    <!-- MathJax per formule matematiche pulite -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        :root {
+            --ink-blue: #1b365d;
+            --ink-black: #222629;
+            --ink-red: #c0392b;
+            --ink-green: #1e8449;
+            --ink-purple: #6c3483;
+            --hl-yellow: rgba(255, 235, 59, 0.55);
+            --hl-pink: rgba(255, 128, 171, 0.45);
+            --hl-cyan: rgba(128, 222, 234, 0.5);
+            --hl-green: rgba(165, 214, 167, 0.55);
+            --grid-color: #d9e6f2;
+            --margin-line: #f5b7b1;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #343a40;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Patrick Hand', cursive;
+            color: var(--ink-black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        /* Barra comandi */
+        .toolbar {
+            position: sticky;
+            top: 15px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 25px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .toolbar span {
+            font-family: 'Kalam', cursive;
+            font-weight: 700;
+            color: var(--ink-blue);
+            font-size: 1.1rem;
+        }
+
+        .btn-print {
+            background-color: var(--ink-blue);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-family: 'Kalam', cursive;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-print:hover {
+            background-color: #29528c;
+            transform: scale(1.05);
+        }
+
+        /* Foglio A4 a quadretti */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            background-color: #fffef9;
+            /* Effetto quadretti 5mm */
+            background-image: 
+                linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+            background-size: 18px 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 15mm 15mm 15mm 22mm;
+            position: relative;
+            overflow: hidden;
+            border-radius: 3px;
+        }
+
+        /* Linea rossa margine sinistro quaderno */
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 16mm;
+            width: 2px;
+            background-color: var(--margin-line);
+        }
+
+        /* Buchi raccoglitore */
+        .holes {
+            position: absolute;
+            left: 5mm;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 30mm 0;
+        }
+
+        .hole {
+            width: 18px;
+            height: 18px;
+            background-color: #343a40;
+            border-radius: 50%;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.6);
+        }
+
+        /* Intestazione Pagina */
+        .header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2.5px solid var(--ink-blue);
+            padding-bottom: 5px;
+            margin-bottom: 18px;
+        }
+
+        .main-title {
+            font-family: 'Caveat', cursive;
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--ink-blue);
+            margin: 0;
+            line-height: 1;
+            transform: rotate(-1deg);
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+        }
+
+        .page-num {
+            font-family: 'Kalam', cursive;
+            font-size: 1.1rem;
+            color: var(--ink-red);
+            font-weight: 700;
+            border: 2px solid var(--ink-red);
+            padding: 2px 10px;
+            border-radius: 15px 5px 15px 5px;
+            transform: rotate(2deg);
+        }
+
+        /* Stile Evidenziatori */
+        .hl-y { background: linear-gradient(104deg, rgba(255,235,59,0) 0.9%, var(--hl-yellow) 2.4%, var(--hl-yellow) 97.5%, rgba(255,235,59,0) 99%); padding: 0 4px; border-radius: 4px; }
+        .hl-p { background: linear-gradient(104deg, rgba(255,128,171,0) 0.9%, var(--hl-pink) 2.4%, var(--hl-pink) 97.5%, rgba(255,128,171,0) 99%); padding: 0 4px; border-radius: 4px; }
+        .hl-c { background: linear-gradient(104deg, rgba(128,222,234,0) 0.9%, var(--hl-cyan) 2.4%, var(--hl-cyan) 97.5%, rgba(128,222,234,0) 99%); padding: 0 4px; border-radius: 4px; }
+        .hl-g { background: linear-gradient(104deg, rgba(165,214,167,0) 0.9%, var(--hl-green) 2.4%, var(--hl-green) 97.5%, rgba(165,214,167,0) 99%); padding: 0 4px; border-radius: 4px; }
+
+        /* Box Schemi Disegnati a Mano */
+        .sketch-box {
+            border: 2px solid var(--ink-black);
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            padding: 12px 15px;
+            background-color: rgba(255, 255, 255, 0.75);
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .sketch-box.blue { border-color: var(--ink-blue); }
+        .sketch-box.red { border-color: var(--ink-red); }
+        .sketch-box.green { border-color: var(--ink-green); }
+        .sketch-box.purple { border-color: var(--ink-purple); }
+
+        .section-title {
+            font-family: 'Kalam', cursive;
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            display: inline-block;
+            color: var(--ink-blue);
+        }
+
+        /* Post-it adesivo */
+        .post-it {
+            background-color: #fff9c4;
+            border: 1px solid #fbc02d;
+            box-shadow: 3px 3px 6px rgba(0,0,0,0.15);
+            padding: 10px 14px;
+            transform: rotate(-1.5deg);
+            font-size: 1.05rem;
+            position: relative;
+        }
+        .post-it::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 45px;
+            height: 14px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Griglie Layout */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        p, li {
+            font-size: 1.08rem;
+            line-height: 1.35;
+            margin: 4px 0;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin: 5px 0;
+        }
+
+        .math-pill {
+            display: inline-block;
+            background: #f0f4f8;
+            border: 1.5px dashed var(--ink-blue);
+            border-radius: 8px;
+            padding: 2px 8px;
+            margin: 3px 0;
+            font-size: 1rem;
+        }
+
+        /* SVG Disegni a mano */
+        svg {
+            display: block;
+            margin: 5px auto;
+            overflow: visible;
+        }
+
+        /* Le formule di MathJax devono restare in linea con il testo */
+        mjx-container svg {
+            display: inline;
+            margin: 0;
+        }
+
+        .svg-text {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 15px;
+            fill: var(--ink-black);
+        }
+
+        .svg-label {
+            font-family: 'Kalam', cursive;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* Stampa */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            body {
+                background: none;
+                padding: 0;
+                gap: 0;
+            }
+            .toolbar {
+                display: none;
+            }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                border-radius: 0;
+                page-break-after: always;
+                height: 297mm;
+            }
+            .holes {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <span>📓 Appunti di Matematica - Gli Insiemi</span>
+        <button class="btn-print" onclick="window.print()">🖨️ Stampa / Salva PDF</button>
+    </div>
+
+    <!-- ==================== PAGINA 1 ==================== -->
+    <div class="page">
+        <div class="holes">
+            <div class="hole"></div>
+            <div class="hole"></div>
+            <div class="hole"></div>
+            <div class="hole"></div>
+        </div>
+
+        <div class="header-box">
+            <h1 class="main-title">Gli Insiemi: Basi & Operazioni</h1>
+            <span class="page-num">Pag. 1 / 2</span>
+        </div>
+
+        <!-- 1. DEFINIZIONE -->
+        <div class="sketch-box blue">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                <div>
+                    <h2 class="section-title"><span class="hl-y">1. Che cos'è un Insieme?</span></h2>
+                    <p>È un <strong>concetto primitivo</strong> (intuitivo). Secondo <em>Georg Cantor</em> è un raggruppamento di oggetti <span class="hl-p">ben distinti</span> (che non si ripetono!) della nostra intuizione o del nostro pensiero.</p>
+                    <p style="font-size: 0.95rem; color: var(--ink-blue);">📌 <strong>Notazione:</strong> Lettere MAIUSCOLE per gli insiemi $A, B$ e minuscole per gli elementi $a, b$.</p>
+                </div>
+                <div class="post-it" style="min-width: 175px;">
+                    <strong>⚠️ Regola d'oro:</strong><br>
+                    • Niente doppioni!<br>
+                    • L'ordine NON conta!<br>
+                    $\{1, 2\} = \{2, 1\}$
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. RAPPRESENTAZIONE -->
+        <h2 class="section-title" style="margin-left: 5px;"><span class="hl-c">2. Come si rappresenta? (3 modi)</span></h2>
+        <div class="grid-3">
+            <!-- Elencazione -->
+            <div class="sketch-box">
+                <strong style="color: var(--ink-blue); font-size: 1.15rem;">① Per Elencazione</strong>
+                <p>Si scrivono tutti gli elementi tra parentesi graffe separati da virgole.</p>
+                <div class="math-pill">$A = \{1, 2, 3, 4\}$</div>
+                <p style="font-size: 0.9rem; color: #555;">(Utile se ci sono pochi elementi)</p>
+            </div>
+
+            <!-- Caratteristica -->
+            <div class="sketch-box">
+                <strong style="color: var(--ink-green); font-size: 1.15rem;">② Per Caratteristica</strong>
+                <p>Si indica la proprietà comune che identifica gli elementi.</p>
+                <div class="math-pill">$A = \{x \in \mathbb{N}\ | 1 \le x \le 4\}$</div>
+                <p style="font-size: 0.9rem; color: #555;">Si legge: "x appartenente ai numeri naturali tale che x..."</p>
+            </div>
+
+            <!-- Grafica -->
+            <div class="sketch-box">
+                <strong style="color: var(--ink-red); font-size: 1.15rem;">③ Grafica (Eulero-Venn)</strong>
+                <p>Una linea chiusa con dentro gli elementi (puntini).</p>
+                <svg width="140" height="75" viewBox="0 0 140 75">
+                    <path d="M 20,38 C 18,12 115,10 120,38 C 125,65 22,64 20,38 Z" fill="rgba(255,235,59,0.2)" stroke="#c0392b" stroke-width="2" stroke-linecap="round"/>
+                    <text x="10" y="22" class="svg-label" fill="#c0392b">A</text>
+                    <circle cx="45" cy="30" r="2.5" fill="#1b365d"/><text x="35" y="33" class="svg-text">1</text>
+                    <circle cx="55" cy="50" r="2.5" fill="#1b365d"/><text x="44" y="54" class="svg-text">2</text>
+                    <circle cx="80" cy="30" r="2.5" fill="#1b365d"/><text x="85" y="33" class="svg-text">3</text>
+                    <circle cx="95" cy="48" r="2.5" fill="#1b365d"/><text x="100" y="52" class="svg-text">4</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 3. OPERAZIONI TRA INSIEMI -->
+        <h2 class="section-title" style="margin-left: 5px; margin-top: 5px;"><span class="hl-g">3. Operazioni tra Insiemi</span></h2>
+        <p style="margin-bottom: 8px; font-size: 1rem;">Dati gli insiemi di partenza: <span class="math-pill">$A = \{1, 2, 3, 4\}$</span> e <span class="math-pill">$B = \{2, 3, 4, 5\}$</span></p>
+
+        <div class="grid-2">
+            <!-- Unione -->
+            <div class="sketch-box blue">
+                <strong style="font-size: 1.2rem; color: var(--ink-blue);">A) Unione &nbsp;$A \cup B$</strong>
+                <p>Elementi che appartengono ad $A$ <strong>oppure</strong> a $B$ (tutti insieme, senza ripetizioni).</p>
+                <div class="math-pill">$A \cup B = \{1, 2, 3, 4, 5\}$</div>
+                <svg width="220" height="85" viewBox="0 0 220 85">
+                    <!-- Area colorata esattamente dentro le due ellissi -->
+                    <ellipse cx="80" cy="45" rx="52" ry="32" fill="rgba(128, 222, 234, 0.45)" stroke="none"/>
+                    <ellipse cx="135" cy="45" rx="52" ry="32" fill="rgba(128, 222, 234, 0.45)" stroke="none"/>
+                    <ellipse cx="80" cy="45" rx="52" ry="32" fill="none" stroke="#1b365d" stroke-width="2"/>
+                    <ellipse cx="135" cy="45" rx="52" ry="32" fill="none" stroke="#1b365d" stroke-width="2"/>
+                    <text x="20" y="25" class="svg-label" fill="#1b365d">A</text>
+                    <text x="185" y="25" class="svg-label" fill="#1b365d">B</text>
+                    <!-- Elementi -->
+                    <circle cx="52" cy="45" r="2.5"/><text x="40" y="49" class="svg-text">1</text>
+                    <circle cx="105" cy="28" r="2.5"/><text x="110" y="32" class="svg-text">2</text>
+                    <circle cx="105" cy="45" r="2.5"/><text x="110" y="49" class="svg-text">3</text>
+                    <circle cx="105" cy="62" r="2.5"/><text x="110" y="66" class="svg-text">4</text>
+                    <circle cx="162" cy="45" r="2.5"/><text x="168" y="49" class="svg-text">5</text>
+                </svg>
+            </div>
+
+            <!-- Intersezione -->
+            <div class="sketch-box green">
+                <strong style="font-size: 1.2rem; color: var(--ink-green);">B) Intersezione &nbsp;$A \cap B$</strong>
+                <p>Solo gli elementi <strong>comuni</strong> ad $A$ <strong>e</strong> a $B$. <em>(Se vuoto $\emptyset \rightarrow$ insiemi <strong>disgiunti</strong>)</em>.</p>
+                <div class="math-pill">$A \cap B = \{2, 3, 4\}$</div>
+                <svg width="220" height="85" viewBox="0 0 220 85">
+                    <defs>
+                        <clipPath id="clipA"><ellipse cx="80" cy="45" rx="52" ry="32"/></clipPath>
+                    </defs>
+                    <ellipse cx="135" cy="45" rx="52" ry="32" fill="rgba(165, 214, 167, 0.8)" clip-path="url(#clipA)"/>
+                    <ellipse cx="80" cy="45" rx="52" ry="32" fill="none" stroke="#1e8449" stroke-width="2"/>
+                    <ellipse cx="135" cy="45" rx="52" ry="32" fill="none" stroke="#1e8449" stroke-width="2"/>
+                    <text x="20" y="25" class="svg-label" fill="#1e8449">A</text>
+                    <text x="185" y="25" class="svg-label" fill="#1e8449">B</text>
+                    <circle cx="52" cy="45" r="2.5"/><text x="40" y="49" class="svg-text">1</text>
+                    <circle cx="105" cy="28" r="2.5"/><text x="110" y="32" class="svg-text" font-weight="bold">2</text>
+                    <circle cx="105" cy="45" r="2.5"/><text x="110" y="49" class="svg-text" font-weight="bold">3</text>
+                    <circle cx="105" cy="62" r="2.5"/><text x="110" y="66" class="svg-text" font-weight="bold">4</text>
+                    <circle cx="162" cy="45" r="2.5"/><text x="168" y="49" class="svg-text">5</text>
+                </svg>
+            </div>
+
+            <!-- Differenza -->
+            <div class="sketch-box red">
+                <strong style="font-size: 1.2rem; color: var(--ink-red);">C) Differenza &nbsp;$A - B$</strong>
+                <p>Elementi di $A$ <strong>tolti</strong> quelli che stanno anche in $B$.</p>
+                <div class="math-pill">$A - B = \{1\}$</div> &nbsp; <div class="math-pill">$B - A = \{5\}$</div>
+                <svg width="220" height="85" viewBox="0 0 220 85">
+                    <ellipse cx="80" cy="45" rx="52" ry="32" fill="rgba(255, 128, 171, 0.55)" stroke="#c0392b" stroke-width="2"/>
+                    <ellipse cx="135" cy="45" rx="52" ry="32" fill="#fffef9" stroke="#c0392b" stroke-width="2"/>
+                    <ellipse cx="80" cy="45" rx="52" ry="32" fill="none" stroke="#c0392b" stroke-width="2"/>
+                    <text x="20" y="25" class="svg-label" fill="#c0392b">A</text>
+                    <text x="185" y="25" class="svg-label" fill="#c0392b">B</text>
+                    <circle cx="52" cy="45" r="2.5"/><text x="38" y="49" class="svg-text" font-weight="bold">1</text>
+                    <circle cx="105" cy="28" r="2.5"/><text x="110" y="32" class="svg-text">2</text>
+                    <circle cx="105" cy="45" r="2.5"/><text x="110" y="49" class="svg-text">3</text>
+                    <circle cx="105" cy="62" r="2.5"/><text x="110" y="66" class="svg-text">4</text>
+                    <circle cx="162" cy="45" r="2.5"/><text x="168" y="49" class="svg-text">5</text>
+                    <text x="48" y="70" class="svg-text" fill="#c0392b" font-size="12">A - B</text>
+                </svg>
+            </div>
+
+            <!-- Complementare -->
+            <div class="sketch-box purple">
+                <strong style="font-size: 1.2rem; color: var(--ink-purple);">D) Complementare &nbsp;$\overline{B}$</strong>
+                <p>Differenza tra un insieme "contenitore" $U$ (o $A$) e un suo sottoinsieme $B$.</p>
+                <div class="math-pill">$\overline{B} = U - B$</div>
+                <svg width="220" height="85" viewBox="0 0 220 85">
+                    <rect x="25" y="10" width="170" height="68" rx="10" fill="rgba(255, 235, 59, 0.45)" stroke="#6c3483" stroke-width="2"/>
+                    <ellipse cx="110" cy="46" rx="45" ry="22" fill="#fffef9" stroke="#6c3483" stroke-width="2"/>
+                    <text x="32" y="26" class="svg-label" fill="#6c3483">U</text>
+                    <text x="105" y="51" class="svg-label" fill="#6c3483">B</text>
+                    <text x="155" y="28" class="svg-text" fill="#6c3483" font-weight="bold">B̄</text>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== PAGINA 2 ==================== -->
+    <div class="page">
+        <div class="holes">
+            <div class="hole"></div>
+            <div class="hole"></div>
+            <div class="hole"></div>
+            <div class="hole"></div>
+        </div>
+
+        <div class="header-box">
+            <h1 class="main-title">Insiemi Avanzati & Leggi</h1>
+            <span class="page-num">Pag. 2 / 2</span>
+        </div>
+
+        <!-- 4. PRODOTTO CARTESIANO -->
+        <div class="sketch-box blue">
+            <h2 class="section-title"><span class="hl-y">4. Prodotto Cartesiano &nbsp;$A \times B$</span></h2>
+            <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 15px; align-items: center;">
+                <div>
+                    <p>È l'insieme di tutte le <strong>coppie ordinate $(x, y)$</strong> dove il 1° elemento viene da $A$ e il 2° viene da $B$.</p>
+                    <p>Esempio: $A = \{1, 2\}$ e $B = \{a, b, c\}$</p>
+                    <div class="math-pill" style="font-size: 0.95rem;">$A \times B = \{(1,a), (1,b), (1,c), (2,a), (2,b), (2,c)\}$</div>
+                    <p style="color: var(--ink-red); font-weight: bold; margin-top: 6px;">⚠️ NON è commutativo! $A \times B \neq B \times A$</p>
+                </div>
+                <div>
+                    <!-- Piano Cartesiano disegnato a mano -->
+                    <svg width="210" height="125" viewBox="0 0 210 125">
+                        <!-- Assi -->
+                        <line x1="35" y1="100" x2="195" y2="100" stroke="#1b365d" stroke-width="2"/>
+                        <polygon points="195,100 188,96 188,104" fill="#1b365d"/>
+                        <line x1="35" y1="100" x2="35" y2="12" stroke="#1b365d" stroke-width="2"/>
+                        <polygon points="35,12 31,19 39,19" fill="#1b365d"/>
+                        
+                        <text x="192" y="116" class="svg-label" fill="#1b365d">B</text>
+                        <text x="18" y="20" class="svg-label" fill="#1b365d">A</text>
+                        <text x="125" y="22" class="svg-label" fill="#c0392b">A × B</text>
+
+                        <!-- Griglia tratteggiata -->
+                        <line x1="75" y1="100" x2="75" y2="30" stroke="#95a5a6" stroke-dasharray="3,3"/>
+                        <line x1="120" y1="100" x2="120" y2="30" stroke="#95a5a6" stroke-dasharray="3,3"/>
+                        <line x1="165" y1="100" x2="165" y2="30" stroke="#95a5a6" stroke-dasharray="3,3"/>
+                        <line x1="35" y1="70" x2="175" y2="70" stroke="#95a5a6" stroke-dasharray="3,3"/>
+                        <line x1="35" y1="40" x2="175" y2="40" stroke="#95a5a6" stroke-dasharray="3,3"/>
+
+                        <!-- Etichette assi -->
+                        <text x="71" y="115" class="svg-text">a</text>
+                        <text x="116" y="115" class="svg-text">b</text>
+                        <text x="161" y="115" class="svg-text">c</text>
+                        <text x="20" y="74" class="svg-text">1</text>
+                        <text x="20" y="44" class="svg-text">2</text>
+
+                        <!-- Punti rossi -->
+                        <circle cx="75" cy="70" r="4" fill="#c0392b"/>
+                        <circle cx="120" cy="70" r="4" fill="#c0392b"/>
+                        <circle cx="165" cy="70" r="4" fill="#c0392b"/>
+                        <circle cx="75" cy="40" r="4" fill="#c0392b"/>
+                        <circle cx="120" cy="40" r="4" fill="#c0392b"/>
+                        <circle cx="165" cy="40" r="4" fill="#c0392b"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. INSIEME DELLE PARTI -->
+        <div class="sketch-box green">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                <div>
+                    <h2 class="section-title"><span class="hl-g">5. Insieme delle Parti $\mathcal{P}(A)$</span></h2>
+                    <p>È l'insieme formato da <strong>tutti i possibili sottoinsiemi</strong> di $A$ (inclusi l'insieme vuoto $\emptyset$ e $A$ stesso).</p>
+                    <p>Esempio: $A = \{1, 2, 3\}$ (ha $n = 3$ elementi)</p>
+                    <div class="math-pill" style="font-size: 0.92rem;">$\mathcal{P}(A) = \{\emptyset, \{1\}, \{2\}, \{3\}, \{1,2\}, \{1,3\}, \{2,3\}, A\}$</div>
+                </div>
+                <div class="post-it" style="min-width: 170px; background-color: #e8f5e9; border-color: #4caf50;">
+                    <strong>🧮 Formula Magica:</strong><br>
+                    Se $A$ ha $n$ elementi, $\mathcal{P}(A)$ ne ha:<br>
+                    <div style="text-align: center; font-size: 1.3rem; font-weight: bold; color: var(--ink-green); margin-top: 4px;">$2^n$</div>
+                    <small>(Es: $2^3 = 8$ sottoinsiemi)</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. PARTIZIONE DI UN INSIEME -->
+        <div class="sketch-box purple">
+            <h2 class="section-title"><span class="hl-p">6. Partizione di un Insieme</span></h2>
+            <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 15px; align-items: center;">
+                <div>
+                    <p>Dividere un insieme $A$ in sottoinsiemi ("pezzi") che rispettano <strong>3 regole ferree</strong>:</p>
+                    <ul>
+                        <li><strong>1. Nessuno è vuoto</strong> ($A_i \neq \emptyset$)</li>
+                        <li><strong>2. Sono disgiunti a due a due</strong> (nessuna sovrapposizione)</li>
+                        <li><strong>3. La loro unione ricostruisce tutto $A$</strong></li>
+                    </ul>
+                    <p style="font-size: 0.95rem; color: var(--ink-purple);">💡 <em>Esempio: Gli studenti di una scuola divisi nelle rispettive classi (1A, 1B, 2A...).</em></p>
+                </div>
+                <div>
+                    <!-- Puzzle Partizione SVG -->
+                    <svg width="200" height="110" viewBox="0 0 200 110">
+                        <rect x="10" y="10" width="180" height="90" rx="15" fill="rgba(108, 52, 131, 0.1)" stroke="#6c3483" stroke-width="2.5"/>
+                        <text x="18" y="28" class="svg-label" fill="#6c3483">A</text>
+                        <!-- Linee divisorie tipo puzzle -->
+                        <path d="M 75,10 Q 85,55 70,100" fill="none" stroke="#6c3483" stroke-width="2" stroke-dasharray="5,3"/>
+                        <path d="M 76,55 Q 130,45 190,60" fill="none" stroke="#6c3483" stroke-width="2" stroke-dasharray="5,3"/>
+                        
+                        <text x="14" y="60" class="svg-label" fill="#1b365d">D = {1,2}</text>
+                        <text x="98" y="38" class="svg-label" fill="#1e8449">E = {3,4,5}</text>
+                        <text x="105" y="85" class="svg-label" fill="#c0392b">F = {6,7}</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. LEGGI DI DE MORGAN -->
+        <div class="sketch-box red" style="margin-bottom: 0;">
+            <h2 class="section-title"><span class="hl-c">7. Leggi di De Morgan</span></h2>
+            <p style="font-size: 0.95rem; margin-bottom: 6px;">Servono per "spezzare" la linea del complementare sopra un'operazione (<strong>il simbolo centrale si ribalta!</strong>):</p>
+            <div class="grid-2">
+                <div style="background: rgba(255,255,255,0.9); padding: 8px 12px; border-radius: 10px; border: 1.5px solid var(--ink-red); text-align: center;">
+                    <strong style="color: var(--ink-red);">I Legge:</strong><br>
+                    <span style="font-size: 1.25rem;">$\overline{A \cup B} = \overline{A} \cap \overline{B}$</span><br>
+                    <small>"Il complementare dell'unione è l'intersezione dei complementari"</small>
+                </div>
+                <div style="background: rgba(255,255,255,0.9); padding: 8px 12px; border-radius: 10px; border: 1.5px solid var(--ink-red); text-align: center;">
+                    <strong style="color: var(--ink-red);">II Legge:</strong><br>
+                    <span style="font-size: 1.25rem;">$\overline{A \cap B} = \overline{A} \cup \overline{B}$</span><br>
+                    <small>"Il complementare dell'intersezione è l'unione dei complementari"</small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
